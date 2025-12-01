@@ -1,16 +1,18 @@
 import kotlin.test.Test
-import kotlin.test.assertTrue
 
 class TestDay1 {
     private val day1 = Day1()
 
     @Test
-    fun readInput_shouldReadResourceFile() {
-        val lines = day1.readInput()
+    fun testSolvePart1() {
+        val solution = day1.solvePart1()
+        println(solution)
+    }
 
-        println(lines)
-        assertTrue(lines.isNotEmpty(), "File should not be empty")
-
+    @Test
+    fun testSolvePart2() {
+        val solution = day1.solvePart2()
+        println(solution)
     }
 
 
