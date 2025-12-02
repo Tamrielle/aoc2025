@@ -3,7 +3,7 @@ import utils.InputUtils
 class Day1 {
 
     fun solvePart1(): Long {
-        val input = InputUtils().readInput(1)
+        val input = InputUtils().readLines(1)
         val instructions = prepareInput(input)
 
         var code = 0L
@@ -34,7 +34,7 @@ class Day1 {
     }
 
     fun solvePart2(): Long {
-        val input = InputUtils().readInput(1)
+        val input = InputUtils().readLines(1)
         val instructions = prepareInput(input)
 
         var code = 0L
