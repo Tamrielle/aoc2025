@@ -90,7 +90,7 @@ class Day2 {
 
             ranges.add(IdRange(min, max))
         }
-        
+
         return ranges
     }
 
