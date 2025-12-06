@@ -9,6 +9,8 @@ class TestDay6 {
         println(solution)
     }
 
+
+
     @Test
     fun testSolvePart2() {
         val solution = day6.solvePart2()
