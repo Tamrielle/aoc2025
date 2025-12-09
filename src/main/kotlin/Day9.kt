@@ -83,9 +83,57 @@ class Day9 {
 
         mutableGrid.forEach { println(it.joinToString("")) }
 
+        val listOfGridSizes = arrayListOf<Long>()
+
+        for (i in positions.indices) {
+            for (j in positions.indices) {
+                if (i == j) continue
+
+                val pos1 = positions[i]
+                val pos2 = positions[j]
+
+               val corners = getCorners(pos1, pos2)
+
+               val solid = isRedOrGreenTile(mutableGrid,  corners.topLeft, corners.bottomRight)
+                if ( solid) {
+                    val xDistance = abs(pos2.x - pos1.x) + 1
+                    val yDistance = abs(pos2.y - pos1.y) + 1
+                    val gridSize = xDistance.toLong() * yDistance.toLong()
+                    //println("$pos1 -> $pos2 = $gridSize")
+                    listOfGridSizes.add(gridSize)
+                }
+            }
+        }
 
 
-        return 0
+        return listOfGridSizes.max()
+    }
+
+    private fun isRedOrGreenTile(
+        grid: List<CharArray>,
+        topLeft: Position,
+        bottomRight: Position
+    ): Boolean {
+        for (y in topLeft.y..bottomRight.y) {
+            for (x in topLeft.x..bottomRight.x) {
+                if (grid[y][x] == '.') return false
+            }
+        }
+        return true
+    }
+
+    private fun getCorners(pos1: Position, pos2: Position): RectCorners {
+        val left   = minOf(pos1.x, pos2.x)
+        val right  = maxOf(pos1.x, pos2.x)
+        val top    = minOf(pos1.y, pos2.y)
+        val bottom = maxOf(pos1.y, pos2.y)
+
+        val topLeft     = Position(left, top)
+        val topRight    = Position(right, top)
+        val bottomLeft  = Position(left, bottom)
+        val bottomRight = Position(right, bottom)
+
+        return RectCorners(topLeft, topRight, bottomLeft, bottomRight)
     }
 
     fun fillBetweenBounds(grid: MutableList<CharArray>) {
@@ -105,6 +153,13 @@ class Day9 {
             }
         }
     }
+
+    data class RectCorners(
+        val topLeft: Position,
+        val topRight: Position,
+        val bottomLeft: Position,
+        val bottomRight: Position
+    )
 
     data class Position(var x: Int, var y: Int) {
         override fun toString(): String {
