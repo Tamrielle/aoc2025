@@ -5,83 +5,86 @@ class Day8 {
     val input = InputUtils().readLines(8)
 
     fun solvePart1(): Int {
+        val boxPositions = transformInput()
+        val distances = calculateDistances(boxPositions)
+        val sorted = distances.sortedBy { it.distance }.take(1000)
+
+        val circuit: ArrayList<ArrayList<Position>> = arrayListOf()
+        boxPositions.forEach {
+            circuit.add(arrayListOf(it))
+        }
+
+        sorted.forEach { junction ->
+            val firstIndex = circuit.indexOfFirst { it.contains(junction.pos1) }
+            val secondIndex = circuit.indexOfFirst { it.contains(junction.pos2) }
+
+            if (firstIndex == secondIndex) {
+                return@forEach
+            }
+
+            circuit[firstIndex].addAll(circuit[secondIndex])
+            circuit.removeAt(secondIndex)
+        }
+
+        val bestCircuits = circuit.sortedByDescending { it.size }.take(3)
+
+        return bestCircuits.fold(1) { acc, circuit -> acc * circuit.size }
+    }
+
+    private fun transformInput(): ArrayList<Position> {
         val boxPositions = arrayListOf<Position>()
         input.forEach {
             val split = it.split(",")
             boxPositions.add(Position(split[0].toInt(), split[1].toInt(), split[2].toInt()))
         }
-
-        val circuits = arrayListOf<Circuit>()
-        var connections: List<List<Connection>> = arrayListOf()
-
-        while (boxPositions.size > 0) {
-            val distances = arrayListOf<Distance>()
-
-            boxPositions.forEachIndexed { i, pos1 ->
-                boxPositions.forEachIndexed { j, pos2 ->
-                    if (i == j) {
-                        return@forEachIndexed
-                    }
-
-                    if (alreadyConnected(connections, pos1, pos2)) {
-                        return@forEachIndexed
-                    }
-
-                    val distance = straightLineDistance(pos1, pos2)
-                    distances.add(Distance(pos1, pos2, distance))
-                }
-            }
-
-            val minDistance = distances.minByOrNull { it.distance }
-            minDistance?.let {
-
-                if (bothAreInConnection(connections, minDistance)) {
-                    println("Finishing circuit with ${connections.size} connections.")
-                    circuits.add(Circuit(connections))
-
-                    connections.forEach {
-                        boxPositions.remove(it.pos1)
-                        boxPositions.remove(it.pos2)
-                    }
-                    connections = arrayListOf()
-                } else {
-                    val sorted = arrayListOf( it.pos1, it.pos2).sortedBy { it.x }
-
-                    connections.add(Connection( sorted.first(),  sorted.last()))
-                    println("connections: $connections")
-                }
-            }
-        }
-
-        println(circuits)
-
-        return 0
-    }
-
-    private fun bothAreInConnection(connections: List<List<Connection>>, minDistance: Distance): Boolean {
-        connections.forEach { connection ->
-            if ( connection.find { it.pos1 == minDistance.pos1 || it.pos2 == minDistance.pos1 } != null &&
-                connection.find { it.pos1 == minDistance.pos2 || it.pos2 == minDistance.pos2 } != null) {
-                return true
-            }
-      }
-
-
-        return false
-    }
-
-    private fun alreadyConnected(connections: List<List<Connection>>, pos1: Position, pos2: Position): Boolean {
-        connections.forEach { connection ->
-            if( connection.find { it.pos1 == pos1 && it.pos2 == pos2 } != null) {
-                return true
-            }
-        }
-
-        return false
+        return boxPositions
     }
 
     fun solvePart2(): Long {
-        return 0L
+        val boxPositions = transformInput()
+        val distances = calculateDistances(boxPositions)
+        val sorted = distances.sortedBy { it.distance }
+
+        val circuit: ArrayList<ArrayList<Position>> = arrayListOf()
+        boxPositions.forEach {
+            circuit.add(arrayListOf(it))
+        }
+
+        var result = 0
+        for (junction in sorted) {
+            val firstIndex = circuit.indexOfFirst { it.contains(junction.pos1) }
+            val secondIndex = circuit.indexOfFirst { it.contains(junction.pos2) }
+
+            if (firstIndex == secondIndex) {
+                continue
+            }
+
+            if (circuit.size == 2) {
+                result = junction.pos1.x * junction.pos2.x
+                break
+            }
+
+            circuit[firstIndex].addAll(circuit[secondIndex])
+            circuit.removeAt(secondIndex)
+        }
+
+        return result.toLong()
+    }
+
+    private fun calculateDistances(boxPositions: List<Position>): ArrayList<Distance> {
+        val distances = arrayListOf<Distance>()
+
+        boxPositions.forEachIndexed { i, pos1 ->
+            boxPositions.drop(i + 1).forEachIndexed { j, pos2 ->
+                if (i == j) {
+                    return@forEachIndexed
+                }
+
+                val distance = straightLineDistance(pos1, pos2)
+                distances.add(Distance(pos1, pos2, distance))
+            }
+        }
+        return distances
     }
 
     private fun straightLineDistance(
@@ -96,11 +99,7 @@ class Day8 {
 
 }
 
-data class Circuit(val connections: ArrayList<Connection>)
-
-data class Connection(var pos1: Position, var pos2: Position)
-
-data class Distance(var pos1: Position, var pos2: Position, var distance: Int) {}
+data class Distance(var pos1: Position, var pos2: Position, var distance: Int)
 
 data class Position(var x: Int, var y: Int, var z: Int) {
     override fun toString(): String {
