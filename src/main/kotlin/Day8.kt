@@ -97,13 +97,12 @@ class Day8 {
         return kotlin.math.sqrt(dx * dx + dy * dy + dz * dz).toInt()
     }
 
-}
+    data class Distance(var pos1: Position, var pos2: Position, var distance: Int)
 
-data class Distance(var pos1: Position, var pos2: Position, var distance: Int)
-
-data class Position(var x: Int, var y: Int, var z: Int) {
-    override fun toString(): String {
-        return "($x,$y,$z)"
+    data class Position(var x: Int, var y: Int, var z: Int) {
+        override fun toString(): String {
+            return "($x,$y,$z)"
+        }
     }
-}
 
+}
